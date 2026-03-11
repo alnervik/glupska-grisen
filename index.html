@@ -624,16 +624,9 @@
     showConfetti();
     showToast(`${name} stannade på ${currentSum}!`);
 
-    // Reset current round
-    currentSum = 0;
-    rolls = [];
-    sumValueEl.textContent = '0';
-    updateRollsDisplay();
+    // Don't reset sum – keep going until someone rolls a 1
     nameInput.value = '';
     btnStop.disabled = true;
-    setDiceFace(1);
-    // Hide all dots to show blank
-    document.querySelectorAll('.dot').forEach(d => d.classList.add('hidden'));
   }
 
   function renderLeaderboard() {
