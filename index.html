@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glupska Grisen</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #ff6b8a;
+    --pink-dark: #e8456a;
+    --pink-light: #ffa0b4;
+    --coral: #ff8a65;
+    --yellow: #ffd54f;
+    --green: #81c784;
+    --bg: #fff5f7;
+    --card: #ffffff;
+    --text: #3d2c35;
+    --shadow: 0 6px 24px rgba(200,80,100,0.15);
+    --shadow-lg: 0 10px 40px rgba(200,80,100,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,107,138,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(255,138,101,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(255,213,79,0.05) 0%, transparent 70%);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  header {
+    text-align: center;
+    padding: 24px 16px 12px;
+    position: relative;
+  }
+
+  h1 {
+    font-family: 'Lilita One', cursive;
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    color: var(--pink);
+    text-shadow: 3px 3px 0 rgba(255,107,138,0.15);
+    line-height: 1.1;
+  }
+
+  .pig-emoji {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    display: inline-block;
+    animation: wiggle 2s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  .subtitle {
+    font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+    color: #b07080;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .game-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 700px) {
+    .game-container { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 3px solid rgba(255,107,138,0.1);
+  }
+
+  .panel-title {
+    font-family: 'Lilita One', cursive;
+    font-size: 1.35rem;
+    color: var(--pink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ---- DICE AREA ---- */
+  .dice-area {
+    text-align: center;
+  }
+
+  .sum-display {
+    background: linear-gradient(135deg, var(--pink), var(--coral));
+    color: white;
+    border-radius: 20px;
+    padding: 14px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(255,107,138,0.3);
+  }
+
+  .sum-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .sum-value {
+    font-family: 'Lilita One', cursive;
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    line-height: 1.1;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+  }
+
+  .rolls-history {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #c07080;
+    min-height: 28px;
+    margin-bottom: 16px;
+    word-break: break-word;
+  }
+
+  .dice-container {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 20px;
+    perspective: 600px;
+  }
+
+  .dice {
+    width: 130px;
+    height: 130px;
+    background: white;
+    border-radius: 22px;
+    border: 4px solid #f0d0d8;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 16px;
+    gap: 4px;
+    box-shadow: var(--shadow), inset 0 2px 4px rgba(255,255,255,0.8);
+    transition: transform 0.1s;
+  }
+
+  .dice.rolling {
+    animation: roll 0.5s ease-out;
+  }
+
+  @keyframes roll {
+    0% { transform: rotateX(0deg) rotateZ(0deg) scale(0.9); }
+    25% { transform: rotateX(180deg) rotateZ(90deg) scale(1.05); }
+    50% { transform: rotateX(360deg) rotateZ(180deg) scale(0.95); }
+    75% { transform: rotateX(540deg) rotateZ(270deg) scale(1.02); }
+    100% { transform: rotateX(720deg) rotateZ(360deg) scale(1); }
+  }
+
+  .dot-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--pink-dark);
+    box-shadow: inset 0 2px 3px rgba(0,0,0,0.2);
+  }
+
+  .dot.hidden { visibility: hidden; }
+
+  .btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 36px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-roll {
+    background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+    color: white;
+    box-shadow: 0 6px 20px rgba(255,107,138,0.4);
+    font-size: 1.4rem;
+    padding: 18px 48px;
+  }
+
+  .btn-roll:hover { box-shadow: 0 8px 28px rgba(255,107,138,0.5); transform: translateY(-2px); }
+  .btn-roll:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ---- STOP AREA ---- */
+  .stop-area {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .name-input {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 14px 20px;
+    border: 3px solid var(--pink-light);
+    border-radius: 14px;
+    outline: none;
+    width: 180px;
+    text-align: center;
+    color: var(--text);
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+
+  .name-input::placeholder { color: #d4a0b0; }
+  .name-input:focus { border-color: var(--pink); }
+
+  .btn-stop {
+    background: linear-gradient(135deg, var(--green), #66bb6a);
+    color: white;
+    box-shadow: 0 4px 16px rgba(129,199,132,0.4);
+  }
+
+  .btn-stop:hover { box-shadow: 0 6px 22px rgba(129,199,132,0.5); transform: translateY(-2px); }
+  .btn-stop:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ---- BUST OVERLAY ---- */
+  .bust-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(60,20,30,0.7);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s;
+  }
+
+  .bust-overlay.show { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .bust-card {
+    background: white;
+    border-radius: 32px;
+    padding: 40px 48px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    max-width: 480px;
+    width: 90%;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .bust-icon { font-size: 4rem; margin-bottom: 12px; }
+
+  .bust-title {
+    font-family: 'Lilita One', cursive;
+    font-size: 2.4rem;
+    color: var(--pink-dark);
+    margin-bottom: 8px;
+  }
+
+  .bust-text {
+    font-size: 1.1rem;
+    color: #806070;
+    font-weight: 700;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .btn-new-game {
+    background: linear-gradient(135deg, var(--yellow), #ffca28);
+    color: #5d4037;
+    box-shadow: 0 4px 16px rgba(255,213,79,0.4);
+    font-size: 1.2rem;
+  }
+
+  .btn-new-game:hover { box-shadow: 0 6px 22px rgba(255,213,79,0.5); transform: translateY(-2px); }
+
+  /* ---- LEADERBOARD ---- */
+  .leaderboard-panel { }
+
+  .leaderboard-empty {
+    text-align: center;
+    color: #c0a0b0;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 32px 16px;
+  }
+
+  .leaderboard-list {
+    list-style: none;
+  }
+
+  .leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    font-weight: 800;
+    font-size: 1.15rem;
+    transition: all 0.3s;
+    animation: slideIn 0.35s ease-out;
+  }
+
+  @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  .leaderboard-item:nth-child(1) {
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    border: 2px solid #ffd54f;
+    font-size: 1.35rem;
+  }
+
+  .leaderboard-item:nth-child(2) {
+    background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+    border: 2px solid #bdbdbd;
+  }
+
+  .leaderboard-item:nth-child(3) {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 2px solid #ffb74d;
+  }
+
+  .leaderboard-item:nth-child(n+4) {
+    background: #fdf0f3;
+    border: 2px solid #f8d8e0;
+  }
+
+  .rank {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Lilita One', cursive;
+    font-size: 1rem;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .leaderboard-item:nth-child(1) .rank { background: linear-gradient(135deg, #ffd54f, #ffb300); font-size: 1.2rem; width: 40px; height: 40px; }
+  .leaderboard-item:nth-child(2) .rank { background: linear-gradient(135deg, #bdbdbd, #9e9e9e); }
+  .leaderboard-item:nth-child(3) .rank { background: linear-gradient(135deg, #ffb74d, #ff9800); }
+  .leaderboard-item:nth-child(n+4) .rank { background: linear-gradient(135deg, var(--pink-light), var(--pink)); }
+
+  .player-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .player-score {
+    font-family: 'Lilita One', cursive;
+    font-size: 1.3rem;
+    color: var(--pink-dark);
+  }
+
+  .leaderboard-item:nth-child(1) .player-score { font-size: 1.5rem; }
+
+  .btn-reset-wrap {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .btn-reset {
+    background: #f8e0e5;
+    color: var(--pink-dark);
+    font-size: 1rem;
+    padding: 12px 28px;
+    box-shadow: none;
+  }
+
+  .btn-reset:hover { background: #f0c8d0; }
+
+  /* Saved toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green);
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 14px 32px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    z-index: 200;
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Confetti effect for stop */
+  .confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    top: -20px;
+    animation: confettiFall 1.8s ease-out forwards;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="pig-emoji">🐷</span> Glupska Grisen</h1>
+  <p class="subtitle">Vågar du slå en gång till – eller stannar du?</p>
+</header>
+
+<div class="game-container">
+  <!-- LEFT: Game panel -->
+  <div class="panel dice-area">
+    <div class="sum-display">
+      <div class="sum-label">Summa</div>
+      <div class="sum-value" id="sumValue">0</div>
+    </div>
+
+    <div class="rolls-history" id="rollsHistory"></div>
+
+    <div class="dice-container">
+      <div class="dice" id="dice">
+        <div class="dot-cell"><div class="dot hidden" id="d1"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d2"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d3"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d4"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d5"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d6"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d7"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d8"></div></div>
+        <div class="dot-cell"><div class="dot hidden" id="d9"></div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-roll" id="btnRoll" onclick="rollDice()">🎲 Slå tärning</button>
+
+    <div class="stop-area">
+      <input type="text" class="name-input" id="nameInput" placeholder="Namn..." maxlength="20">
+      <button class="btn btn-stop" id="btnStop" onclick="stopPlayer()" disabled>✋ Stanna</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: Leaderboard panel -->
+  <div class="panel leaderboard-panel">
+    <div class="panel-title">🏆 Topplista</div>
+    <ul class="leaderboard-list" id="leaderboard"></ul>
+    <div class="leaderboard-empty" id="leaderboardEmpty">Ingen har stannat ännu!</div>
+    <div class="btn-reset-wrap" id="resetWrap" style="display:none;">
+      <button class="btn btn-reset" onclick="resetGame()">🔄 Börja om</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUST overlay -->
+<div class="bust-overlay" id="bustOverlay">
+  <div class="bust-card">
+    <div class="bust-icon">💥</div>
+    <div class="bust-title">ETTA!</div>
+    <div class="bust-text" id="bustText">Grisen åt upp alla poäng!<br>De som stannade i tid vann!</div>
+    <button class="btn btn-new-game" onclick="closeBust()">👍 Ok!</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confetti container -->
+<div class="confetti-container" id="confetti"></div>
+
+<script>
+  let currentSum = 0;
+  let rolls = [];
+  let leaderboard = [];
+  let isBusted = false;
+  let isRolling = false;
+
+  const diceEl = document.getElementById('dice');
+  const sumValueEl = document.getElementById('sumValue');
+  const rollsHistoryEl = document.getElementById('rollsHistory');
+  const btnRoll = document.getElementById('btnRoll');
+  const btnStop = document.getElementById('btnStop');
+  const nameInput = document.getElementById('nameInput');
+  const leaderboardEl = document.getElementById('leaderboard');
+  const leaderboardEmpty = document.getElementById('leaderboardEmpty');
+  const bustOverlay = document.getElementById('bustOverlay');
+  const bustText = document.getElementById('bustText');
+  const resetWrap = document.getElementById('resetWrap');
+  const toastEl = document.getElementById('toast');
+
+  // Dice dot patterns (3x3 grid positions, 1-indexed: 1=TL,2=TC,3=TR,4=ML,5=MC,6=MR,7=BL,8=BC,9=BR)
+  const dicePatterns = {
+    1: [5],
+    2: [3, 7],
+    3: [3, 5, 7],
+    4: [1, 3, 7, 9],
+    5: [1, 3, 5, 7, 9],
+    6: [1, 3, 4, 6, 7, 9]
+  };
+
+  function setDiceFace(value) {
+    const dots = [
+      document.getElementById('d1'), document.getElementById('d2'), document.getElementById('d3'),
+      document.getElementById('d4'), document.getElementById('d5'), document.getElementById('d6'),
+      document.getElementById('d7'), document.getElementById('d8'), document.getElementById('d9')
+    ];
+    const active = dicePatterns[value] || [];
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('hidden', !active.includes(i + 1));
+    });
+  }
+
+  function updateRollsDisplay() {
+    if (rolls.length === 0) {
+      rollsHistoryEl.textContent = '';
+      return;
+    }
+    rollsHistoryEl.textContent = rolls.join(' + ') + ' = ' + currentSum;
+  }
+
+  function rollDice() {
+    if (isRolling || isBusted) return;
+    isRolling = true;
+    btnRoll.disabled = true;
+    btnStop.disabled = true;
+
+    diceEl.classList.add('rolling');
+
+    // Animate through random faces
+    let count = 0;
+    const flickInterval = setInterval(() => {
+      setDiceFace(Math.floor(Math.random() * 6) + 1);
+      count++;
+      if (count > 8) {
+        clearInterval(flickInterval);
+        // Final result
+        const result = Math.floor(Math.random() * 6) + 1;
+        setDiceFace(result);
+        diceEl.classList.remove('rolling');
+
+        if (result === 1) {
+          // BUST!
+          isBusted = true;
+          rolls.push(1);
+          currentSum = 0;
+          sumValueEl.textContent = '0';
+          updateRollsDisplay();
+          isRolling = false;
+
+          setTimeout(() => {
+            showBust();
+          }, 400);
+        } else {
+          currentSum += result;
+          rolls.push(result);
+          sumValueEl.textContent = currentSum;
+          updateRollsDisplay();
+          isRolling = false;
+          btnRoll.disabled = false;
+          btnStop.disabled = false;
+        }
+      }
+    }, 60);
+  }
+
+  function stopPlayer() {
+    const name = nameInput.value.trim();
+    if (!name || currentSum === 0 || isBusted) return;
+
+    leaderboard.push({ name, score: currentSum });
+    leaderboard.sort((a, b) => b.score - a.score);
+    renderLeaderboard();
+    showConfetti();
+    showToast(`${name} stannade på ${currentSum}!`);
+
+    // Reset current round
+    currentSum = 0;
+    rolls = [];
+    sumValueEl.textContent = '0';
+    updateRollsDisplay();
+    nameInput.value = '';
+    btnStop.disabled = true;
+    setDiceFace(1);
+    // Hide all dots to show blank
+    document.querySelectorAll('.dot').forEach(d => d.classList.add('hidden'));
+  }
+
+  function renderLeaderboard() {
+    if (leaderboard.length === 0) {
+      leaderboardEl.innerHTML = '';
+      leaderboardEmpty.style.display = 'block';
+      resetWrap.style.display = 'none';
+      return;
+    }
+    leaderboardEmpty.style.display = 'none';
+    resetWrap.style.display = 'block';
+
+    leaderboardEl.innerHTML = leaderboard.map((entry, i) => {
+      const medal = i === 0 ? '👑' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : ''));
+      return `
+        <li class="leaderboard-item">
+          <span class="rank">${i + 1}</span>
+          <span class="player-name">${medal} ${escapeHtml(entry.name)}</span>
+          <span class="player-score">${entry.score}</span>
+        </li>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showBust() {
+    if (leaderboard.length === 0) {
+      bustText.innerHTML = 'Grisen åt upp alla poäng!<br>Ingen hade stannat – ingen vann!';
+    } else {
+      bustText.innerHTML = 'Grisen åt upp alla poäng!<br>De som stannade i tid vann! 🎉';
+    }
+    bustOverlay.classList.add('show');
+  }
+
+  function closeBust() {
+    bustOverlay.classList.remove('show');
+    // Don't reset leaderboard, just reset the round state
+    isBusted = false;
+    currentSum = 0;
+    rolls = [];
+    sumValueEl.textContent = '0';
+    updateRollsDisplay();
+    btnRoll.disabled = false;
+    btnStop.disabled = true;
+    document.querySelectorAll('.dot').forEach(d => d.classList.add('hidden'));
+  }
+
+  function resetGame() {
+    if (!confirm('Vill du verkligen börja om? Topplistan nollställs!')) return;
+    leaderboard = [];
+    isBusted = false;
+    currentSum = 0;
+    rolls = [];
+    sumValueEl.textContent = '0';
+    updateRollsDisplay();
+    renderLeaderboard();
+    btnRoll.disabled = false;
+    btnStop.disabled = true;
+    nameInput.value = '';
+    document.querySelectorAll('.dot').forEach(d => d.classList.add('hidden'));
+  }
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 2000);
+  }
+
+  function showConfetti() {
+    const container = document.getElementById('confetti');
+    const colors = ['#ff6b8a', '#ffd54f', '#81c784', '#ff8a65', '#64b5f6', '#ba68c8'];
+    for (let i = 0; i < 30; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = (Math.random() * 0.5) + 's';
+      piece.style.animationDuration = (1.2 + Math.random() * 1) + 's';
+      piece.style.width = (8 + Math.random() * 8) + 'px';
+      piece.style.height = (8 + Math.random() * 8) + 'px';
+      container.appendChild(piece);
+    }
+    setTimeout(() => { container.innerHTML = ''; }, 3000);
+  }
+
+  // Enable stop button when name is typed and sum > 0
+  nameInput.addEventListener('input', () => {
+    btnStop.disabled = !nameInput.value.trim() || currentSum === 0 || isBusted;
+  });
+
+  // Allow pressing Enter in name field to stop
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !btnStop.disabled) stopPlayer();
+  });
+
+  // Init: blank dice
+  document.querySelectorAll('.dot').forEach(d => d.classList.add('hidden'));
+</script>
+
+</body>
+</html>
