@@ -618,7 +618,13 @@
     const name = nameInput.value.trim();
     if (!name || currentSum === 0 || isBusted) return;
 
-    leaderboard.push({ name, score: currentSum });
+    // Check if someone already stopped at this score
+    const existing = leaderboard.find(e => e.score === currentSum);
+    if (existing) {
+      existing.names.push(name);
+    } else {
+      leaderboard.push({ names: [name], score: currentSum });
+    }
     leaderboard.sort((a, b) => b.score - a.score);
     renderLeaderboard();
     showConfetti();
@@ -641,10 +647,19 @@
 
     leaderboardEl.innerHTML = leaderboard.map((entry, i) => {
       const medal = i === 0 ? '👑' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : ''));
+      const nameList = entry.names.map(n => escapeHtml(n));
+      let namesStr;
+      if (nameList.length === 1) {
+        namesStr = nameList[0];
+      } else if (nameList.length === 2) {
+        namesStr = nameList.join(' & ');
+      } else {
+        namesStr = nameList.slice(0, -1).join(', ') + ' & ' + nameList[nameList.length - 1];
+      }
       return `
         <li class="leaderboard-item">
           <span class="rank">${i + 1}</span>
-          <span class="player-name">${medal} ${escapeHtml(entry.name)}</span>
+          <span class="player-name">${medal} ${namesStr}</span>
           <span class="player-score">${entry.score}</span>
         </li>
       `;
